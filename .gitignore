@@ -15,9 +15,6 @@ venv/
 # VS Code settings
 .vscode/
 
-# Streamlit cache
-.streamlit/
-
 # Data or export files
 *.csv
 *.json

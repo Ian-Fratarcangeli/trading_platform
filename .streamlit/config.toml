@@ -1,0 +1,5 @@
+[theme]
+base="light"
+
+[watcher]
+ignoreDirs = ["venv", ".env", "models", "data"]
