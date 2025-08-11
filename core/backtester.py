@@ -232,7 +232,7 @@ class Backtester:
         unique_symbols = log_df['symbol'].unique()
         for filename in os.listdir('visuals'):
             file_path = os.path.join('visuals', filename)
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and file_path != "visuals/.gitkeep":
                 os.remove(file_path)
 
         for symbol in unique_symbols:

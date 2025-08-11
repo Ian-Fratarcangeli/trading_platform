@@ -158,7 +158,7 @@ if run_button and error == 0:
     #give enough data for processing to give rolling values
     train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=75)).strftime("%Y-%m-%d")
     if risk == 'On':
-        train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=2*252)).strftime("%Y-%m-%d")
+        train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=10*252)).strftime("%Y-%m-%d")
 
     data = get_historical_bars(*symbols, start_date=train_date, end_date=end_date)
     data['price'] = data['close']
@@ -190,16 +190,16 @@ if run_button and error == 0:
     #clear model folder before starting
     for filename in os.listdir('models'):
         file_path = os.path.join('models', filename)
-        if os.path.isfile(file_path):
+        if os.path.isfile(file_path) and file_path != "models/.gitkeep":
             os.remove(file_path)
     models = None
     if risk == 'On':
         models = {}
         for symbol, group in train_data.groupby(train_data['symbol']):
+            st.write(f"{symbol} Model training...")
             risk = RiskManager(model_path=f"models/{symbol}_model")
             risk.train(group['return'])
             models[symbol] = risk
-            print(f"{symbol}_model saved to models.")
 
     st.write("Engine Running...")
     engine = Engine(symbols=symbols, data=test_data, strategy1=strategy, strategy2=strategy2, risk_models=models, initial_cash=initial_capital, transaction_cost=transaction_cost)
