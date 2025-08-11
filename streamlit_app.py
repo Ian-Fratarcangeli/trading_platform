@@ -158,7 +158,7 @@ if run_button and error == 0:
     #give enough data for processing to give rolling values
     train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=75)).strftime("%Y-%m-%d")
     if risk == 'On':
-        train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=5*252)).strftime("%Y-%m-%d")
+        train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=2*252)).strftime("%Y-%m-%d")
 
     data = get_historical_bars(*symbols, start_date=train_date, end_date=end_date)
     data['price'] = data['close']
