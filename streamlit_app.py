@@ -59,6 +59,28 @@ def param_heat_map(strategy_class, symbols, param1, param1_values, param2, param
     plt.ylabel(param1)
     plt.show()
 
+@st.cache_data(show_spinner=False, ttl=3600)  # cache for 1 hour
+def load_data(symbols, start_date, end_date):
+    data = get_historical_bars(*symbols, start_date=start_date, end_date=end_date)
+    data['price'] = data['close']
+    data['bid_price'] = data['price'] - 0.02
+    data['ask_price'] = data['price'] + 0.02
+    return data
+
+@st.cache_resource(show_spinner=False)
+def train_risk_models(train_data):
+    models = {}
+    for symbol, group in train_data.groupby('symbol'):
+        risk = RiskManager(model_path=f"models/{symbol}_model")
+        risk.train(group['return'])
+        models[symbol] = risk
+    return models
+
+@st.cache_data(show_spinner=False)
+def run_engine(symbols, data, _strategy1, _strategy2, risk_models, initial_cash, transaction_cost):
+    engine = Engine(symbols=symbols, data=data, strategy1=_strategy1, strategy2=_strategy2, risk_models=risk_models, initial_cash=initial_cash, transaction_cost=transaction_cost)
+    engine.run()
+    return engine
 
 st.set_page_config(layout="wide", page_title="Trading Dashboard", page_icon="📈")
 
@@ -160,11 +182,7 @@ if run_button and error == 0:
     if risk == 'On':
         train_date = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=10*252)).strftime("%Y-%m-%d")
 
-    data = get_historical_bars(*symbols, start_date=train_date, end_date=end_date)
-    data['price'] = data['close']
-    #simulating bid and ask since this is bar data
-    data['bid_price'] = data['price'] - 0.02
-    data['ask_price'] = data['price'] + 0.02
+    data = load_data(symbols, train_date, end_date)
 
     strategy = None
     strategy2 = None
@@ -172,6 +190,7 @@ if run_button and error == 0:
     if strategy_name == "MACD/RSI Momentum":
         strategy = MACD(symbols=symbols)
         finished_data = strategy.data_process(data=data)
+
     elif strategy_name == "Momentum + Mean Reversion Combo":
         strategy = MACD(symbols=symbols)
         strategy2 = MeanReversion(symbols=symbols)
@@ -190,20 +209,15 @@ if run_button and error == 0:
     #clear model folder before starting
     for filename in os.listdir('models'):
         file_path = os.path.join('models', filename)
-        if os.path.isfile(file_path) and file_path != "models/.gitkeep":
+        if os.path.isfile(file_path) and file_path != "models\.gitkeep":
             os.remove(file_path)
     models = None
     if risk == 'On':
-        models = {}
-        for symbol, group in train_data.groupby(train_data['symbol']):
-            st.write(f"{symbol} Model training...")
-            risk = RiskManager(model_path=f"models/{symbol}_model")
-            risk.train(group['return'])
-            models[symbol] = risk
+        train_risk_models(train_data=train_data)
 
     st.write("Engine Running...")
-    engine = Engine(symbols=symbols, data=test_data, strategy1=strategy, strategy2=strategy2, risk_models=models, initial_cash=initial_capital, transaction_cost=transaction_cost)
-    engine.run()
+    engine = run_engine(symbols=symbols, data=test_data, _strategy1=strategy, _strategy2=strategy2, risk_models=models, initial_cash=initial_capital, transaction_cost=transaction_cost)
+    st.write("Engine complete, results rendering...")
 
     st.header("Results")
     st.write("""Metrics relevant to the strategy performance are outputted below. The portfolio return is normalized by dividing its returns by the average exposure

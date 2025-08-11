@@ -2,6 +2,8 @@ from core.backtester import Backtester
 from execution.portfolio import Portfolio
 from execution.executor import Executor
 
+import streamlit as st
+
 class Engine:
     def __init__(self, symbols, data, strategy1, strategy2=None, risk_models=None, initial_cash=100000, transaction_cost=0.001):
         self.symbols = symbols
