@@ -1,0 +1,37 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints
+
+# Virtual environments
+.venv/
+.env/
+venv/
+.openbbenv/
+
+# Environment variable files
+.env
+
+# VS Code settings
+.vscode/
+
+# Streamlit cache
+.streamlit/
+
+# Data or export files
+*.csv
+*.json
+*.xlsx
+*.png
+*.jpg
+/*.pt
+/*.pth
+models/*
+# Data and models and visuals
+src/
+main.py
+option_data.pkl
+options.py
+# OS files
+.DS_Store
+Thumbs.db
