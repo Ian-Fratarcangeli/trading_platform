@@ -107,6 +107,7 @@ st.write("""The sidebar can be used to toggle the backtest parameters and strate
          The 'Run Backtest' button will collect Alpaca OHLC data from the time range you've specified, run it through the backtester with the given strategy,
          and then produce a grouping of visuals and metrics to better understand the performance of the strategy.
 """)
+st.write("***NOTE***: It may take up to a minute for the backtest to complete its run.")
 example_tickers = ["SPY", "AAPL", "MSFT", "TSLA", "AMZN", "GOOGL"]
 
 st.markdown(
